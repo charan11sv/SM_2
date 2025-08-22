@@ -1,0 +1,12 @@
+asgiref==3.9.1
+Django==5.2.5
+djangorestframework==3.14.0
+djangorestframework-simplejwt
+psycopg2-binary==2.9.10
+sqlparse==0.5.3
+django-environ==0.11.2
+requests==2.31.0
+Pillow==10.4.0
+django-storages==1.14.2
+python-magic==0.4.27
+
