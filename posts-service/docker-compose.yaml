@@ -1,0 +1,11 @@
+services:
+  posts-service:
+    build: .
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./media:/app/media
+      - ./db.sqlite3:/app/db.sqlite3
+    environment:
+      - DEBUG=True
+    restart: unless-stopped
