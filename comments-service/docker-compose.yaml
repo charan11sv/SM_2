@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  comments-service:
+    build: .
+    ports:
+      - "8002:8002"
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_DB=comments_db
+      - POSTGRES_USER=comments_user
+      - POSTGRES_PASSWORD=comments_pass
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      - db
+    networks:
+      - comments-network
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=comments_db
+      - POSTGRES_USER=comments_user
+      - POSTGRES_PASSWORD=comments_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - comments-network
+
+volumes:
+  postgres_data:
+
+networks:
+  comments-network:
+    driver: bridge
