@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  likes-service:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/app
+      - media_volume:/app/media
+    environment:
+      - DEBUG=True
+      - DJANGO_SETTINGS_MODULE=likes_service.settings
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8001"
+    depends_on:
+      - db
+    networks:
+      - social-network
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=likes_db
+      - POSTGRES_USER=likes_user
+      - POSTGRES_PASSWORD=likes_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - social-network
+
+volumes:
+  postgres_data:
+  media_volume:
+
+networks:
+  social-network:
+    driver: bridge
