@@ -4,7 +4,7 @@ services:
   comments-service:
     build: .
     ports:
-      - "8002:8002"
+      - "8004:8002"
     volumes:
       - .:/app
     environment:

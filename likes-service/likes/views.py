@@ -1,15 +1,28 @@
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Q
 from django.http import JsonResponse
+from django.utils import timezone
 
 from .models import SamplePost, SampleUser, PostLike
 from .serializers import (
     PostLikeSerializer, PostLikeCreateSerializer, PostLikeDetailSerializer,
     PostLikeCountSerializer, UserLikesSerializer, SamplePostSerializer, SampleUserSerializer
 )
+
+
+@api_view(['GET'])
+def health_check(request):
+    """Health check endpoint for the likes service"""
+    return Response({
+        'service': 'likes-service',
+        'status': 'healthy',
+        'timestamp': timezone.now().isoformat(),
+        'version': '1.0.0',
+        'port': 8003
+    })
 
 
 class PostLikeViewSet(viewsets.ModelViewSet):

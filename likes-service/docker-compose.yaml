@@ -4,7 +4,7 @@ services:
   likes-service:
     build: .
     ports:
-      - "8001:8001"
+      - "8003:8001"
     volumes:
       - .:/app
       - media_volume:/app/media

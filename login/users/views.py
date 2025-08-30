@@ -4,13 +4,28 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.decorators import api_view
 from .serializers import OnboardingSerializer, LoginSerializer
 from .models import EmailVerification, User
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils import timezone
 import random
+
+
+@api_view(['GET'])
+def health_check(request):
+    """Health check endpoint for the login service"""
+    return Response({
+        'service': 'login-service',
+        'status': 'healthy',
+        'timestamp': timezone.now().isoformat(),
+        'version': '1.0.0',
+        'port': 8000
+    })
+
 
 class RequestVerificationCode(APIView):
     permission_classes = [AllowAny]

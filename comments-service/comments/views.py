@@ -1,8 +1,9 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Q
+from django.utils import timezone
 from .models import SampleUser, SamplePost, Comment, CommentLike
 from .serializers import (
     SampleUserSerializer, SamplePostSerializer, CommentSerializer,
@@ -10,6 +11,18 @@ from .serializers import (
     CommentListSerializer, CommentLikeCreateSerializer, UserCommentsSerializer,
     PostCommentsSerializer
 )
+
+
+@api_view(['GET'])
+def health_check(request):
+    """Health check endpoint for the comments service"""
+    return Response({
+        'service': 'comments-service',
+        'status': 'healthy',
+        'timestamp': timezone.now().isoformat(),
+        'version': '1.0.0',
+        'port': 8004
+    })
 
 
 class SampleUserViewSet(viewsets.ModelViewSet):

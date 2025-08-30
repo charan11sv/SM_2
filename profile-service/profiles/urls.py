@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProfileViewSet, ProfilePictureViewSet
+from .views import ProfileViewSet, ProfilePictureViewSet, health_check
 
 router = DefaultRouter()
 router.register(r'profiles', ProfileViewSet, basename='profile')
@@ -8,4 +8,5 @@ router.register(r'profile-pictures', ProfilePictureViewSet, basename='profile-pi
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('health/', health_check, name='health_check'),
 ]

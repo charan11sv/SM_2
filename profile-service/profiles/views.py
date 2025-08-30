@@ -3,14 +3,27 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.utils import timezone
 from .models import Profile, UserInterest, ProfilePicture
 from .serializers import (
     ProfileSerializer, ProfileSetupSerializer, ProfileUpdateSerializer,
     ProfilePictureSerializer
 )
+
+
+@api_view(['GET'])
+def health_check(request):
+    """Health check endpoint for the profile service"""
+    return Response({
+        'service': 'profile-service',
+        'status': 'healthy',
+        'timestamp': timezone.now().isoformat(),
+        'version': '1.0.0',
+        'port': 8001
+    })
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
