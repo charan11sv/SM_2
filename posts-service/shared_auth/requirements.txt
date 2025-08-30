@@ -1,0 +1,14 @@
+# Shared Authentication Package Dependencies
+# These are the minimum requirements for the authentication system
+
+# HTTP requests for service-to-service communication
+requests>=2.31.0
+
+# Django REST Framework (should be installed in each service)
+# djangorestframework>=3.14.0
+
+# JWT support (should be installed in each service)
+# djangorestframework-simplejwt>=5.3.0
+
+# Note: Django and DRF are not included here as they should be
+# installed in each individual service's requirements.txt

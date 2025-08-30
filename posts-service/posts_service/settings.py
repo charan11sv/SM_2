@@ -133,8 +133,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # REST Framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'shared_auth.authentication.MicroserviceAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'shared_auth.permissions.IsAuthenticatedUser',
+    ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.MultiPartParser',
@@ -149,3 +153,18 @@ CORS_ALLOW_CREDENTIALS = True
 # File upload settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
+
+# Service Discovery Configuration
+SERVICES = {
+    'login': os.environ.get('LOGIN_SERVICE_URL', 'http://localhost:8000'),
+    'profile': os.environ.get('PROFILE_SERVICE_URL', 'http://localhost:8001'),
+    'posts': os.environ.get('POSTS_SERVICE_URL', 'http://localhost:8002'),
+    'likes': os.environ.get('LIKES_SERVICE_URL', 'http://localhost:8003'),
+    'comments': os.environ.get('COMMENTS_SERVICE_URL', 'http://localhost:8004'),
+}
+
+# Service Tokens for inter-service communication
+SERVICE_TOKENS = [
+    'posts_service_secret_token_123',
+    'internal_service_token_456',
+]

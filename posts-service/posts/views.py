@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
@@ -8,6 +8,10 @@ from django.http import FileResponse
 from django.utils import timezone
 import os
 
+# Import shared authentication
+from shared_auth.authentication import MicroserviceAuthentication
+from shared_auth.permissions import IsAuthenticatedUser, IsOwnerOrReadOnly, AllowAny
+
 from .models import Post, PostMedia
 from .serializers import (
     PostSerializer, PostCreateSerializer, PostListSerializer
@@ -15,6 +19,7 @@ from .serializers import (
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def health_check(request):
     """Health check endpoint for the posts service"""
     return Response({
@@ -31,7 +36,8 @@ class PostViewSet(viewsets.ModelViewSet):
     
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [permissions.AllowAny]  # Temporarily allow all for development
+    authentication_classes = [MicroserviceAuthentication]
+    permission_classes = [IsAuthenticatedUser]  # Require authentication for all operations
     parser_classes = [JSONParser, MultiPartParser, FormParser]
     
     def get_queryset(self):
@@ -54,9 +60,19 @@ class PostViewSet(viewsets.ModelViewSet):
         return PostSerializer
     
     def perform_create(self, serializer):
-        """Create post with user_id"""
-        user_id = self.request.data.get('user_id', 'default_user')
+        """Create post with user_id from authenticated user"""
+        # Get user_id from the authenticated user
+        user_id = str(self.request.user.id)
         serializer.save(user_id=user_id)
+    
+    def get_permissions(self):
+        """Return appropriate permissions based on action"""
+        if self.action in ['list', 'retrieve']:
+            # Allow read access to all authenticated users
+            return [IsAuthenticatedUser()]
+        else:
+            # Require ownership for create/update/delete
+            return [IsAuthenticatedUser(), IsOwnerOrReadOnly()]
     
     @action(detail=False, methods=['delete'])
     def delete_user_posts(self, request):
@@ -66,6 +82,13 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response(
                 {'error': 'user_id parameter is required'}, 
                 status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Only allow users to delete their own posts
+        if str(request.user.id) != user_id:
+            return Response(
+                {'error': 'You can only delete your own posts'}, 
+                status=status.HTTP_403_FORBIDDEN
             )
         
         # Delete all posts by the user (this will cascade delete media files)
@@ -80,7 +103,8 @@ class PostViewSet(viewsets.ModelViewSet):
 class MediaViewSet(viewsets.ViewSet):
     """ViewSet for serving media files"""
     
-    permission_classes = [permissions.AllowAny]
+    authentication_classes = [MicroserviceAuthentication]
+    permission_classes = [IsAuthenticatedUser]
     
     def retrieve(self, request, pk=None):
         """Serve media file"""
